@@ -11,6 +11,7 @@ import hashlib
 import io
 import re
 import socket
+import sys
 
 from . import keys
 from .compat import text_type
@@ -635,8 +636,10 @@ class Resource(object):
     def unique_value(self):
         """Return the <uniquevalue> value."""
         if self.data is not None and self._unique_value is None:
-            self._unique_value = \
-                hashlib.md5(self.data).hexdigest().encode('utf-8')
+            try:
+              self._unique_value = hashlib.md5(self.data).hexdigest().encode('utf-8')
+            except:
+              self._unique_value = hashlib.md5(self.data.encode('utf-8')).hexdigest().encode('utf-8')
         return self._unique_value
 
     def unique_id(self):
@@ -955,5 +958,8 @@ class SectionPacker(object):
             self.writer.write(text_type(len(data)).encode('utf-8'))
             self.writer.write(LINE_DELIMITER)
             self.writer.write(SECTION_BODY_START)
-            self.writer.write(data)
+            if sys.version_info.major < 3:
+              self.writer.write(data)
+            else:
+              self.writer.write(bytes(data, encoding='utf-8'))
             self.writer.write(SECTION_BODY_END)
