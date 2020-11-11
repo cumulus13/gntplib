@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import os.path
 from setuptools import setup
-
+from __version__ import version
 
 here = os.path.dirname(os.path.abspath(__file__))
 
 
 setup(name='gntplib',
-      version='0.5',
+      version=str(version),
       description=('A Growl Notification Transport Protocol (GNTP)'
                    ' client library in Python'),
       long_description=open(os.path.join(here, 'README.rst')).read(),
