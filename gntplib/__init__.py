@@ -961,5 +961,13 @@ class SectionPacker(object):
             if sys.version_info.major < 3:
               self.writer.write(data)
             else:
-              self.writer.write(bytes(data, encoding='utf-8'))
+              # print("DATA =", data)
+              # print("type(DATA) =", type(data))
+              if sys.version_info.major == 2:
+                self.writer.write(data)
+              else:
+                if isinstance(data, bytes):
+                  self.writer.write(data)
+                else:
+                  self.writer.write(bytes(data, encoding='utf-8'))
             self.writer.write(SECTION_BODY_END)
