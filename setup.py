@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os.path
 from setuptools import setup
-from __version__ import version
+from . __version__ import version
 
 here = os.path.dirname(os.path.abspath(__file__))
 
@@ -13,6 +13,7 @@ setup(name='gntplib',
       long_description=open(os.path.join(here, 'README.rst')).read(),
       author='papaeye',
       author_email='papaeye@gmail.com',
+      editor_email='cumulus13@gmail.com',
       url='http://github.com/papaeye/gntplib',
       packages=['gntplib'],
       tests_require=['coverage', 'mock', 'nose', 'tornado', 'pycrypto'],
