@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 import os.path
 from setuptools import setup
-from . __version__ import version
+try:
+	from . __version__ import version
+except:
+	from __version__ import version
 
 here = os.path.dirname(os.path.abspath(__file__))
 
