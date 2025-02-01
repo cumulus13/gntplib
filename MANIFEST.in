@@ -1,4 +1,4 @@
-include README.rst
+include README.rst __version__.py
 recursive-include docs *
 recursive-exclude docs *.mo
 prune docs/_build
