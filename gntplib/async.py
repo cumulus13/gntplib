@@ -1,7 +1,17 @@
+#!/usr/bin/env python3
+
+# File: gntplib/async.py
+# Author: Hadi Cahyadi <cumulus13@gmail.com>
+# Date: 2025-12-25
+# Description: DEPRECATED: use gntplib.async_gntp module instead for asyncio support.
+# License: MIT
+
 """This module provides support for asynchronous processing built on Tornado_.
 
 .. _Tornado: http://www.tornadoweb.org/
 """
+
+# DEPRECATED: use gntplib.async_gntp module instead for asyncio support.
 
 from __future__ import unicode_literals
 import logging
