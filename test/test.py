@@ -146,8 +146,49 @@ try:
 	    priority=priority
 	)
 	print(f"Sent notification with aliases and title: '{title}' and message: '{message}' successfully.")
+	# print("="*(os.get_terminal_size()[0] - 11))
+except Exception as e:
+	print(f"ERROR DURING TEST: {e}")
+
+print(f"{'='*(int(os.get_terminal_size()[0]/3))} TEST WITH Binary Icon Data {'='*(int(os.get_terminal_size()[0]/3))}")  # type: ignore
+
+try:
+	growl = Publisher(  # type: ignore
+	    name="Network Monitor",
+	    event_defs=["Status Update"],
+	    hostname='127.0.0.1',
+	    port=23053
+	)
+
+	# Register application
+	growl.register()
+
+	# Read icon if exists
+	icon = Path(__file__).parent / 'logo.png'
+	print(f"ICON PATH: {icon}")
+	print(f"ICON PATH is file: {Path(icon).is_file()}")
+
+	icon_data = None
+	if icon.exists():
+		with open(icon, "rb") as f:
+			icon_data = f.read()
+
+	# Send notification
+	title = "TEST_TITLE"
+	message = "TEST_MESSAGE"
+	priority = 0
+	growl.publish(
+	    name="Status Update",
+	    title=title,
+	    text=message,
+	    icon=Resource(str(icon_data)) if Path(icon).exists() else None,  # type: ignore
+	    sticky=False,
+	    priority=priority
+	)
+	print(f"Sent notification with title: '{title}' and message: '{message}' successfully.")
 	print("="*(os.get_terminal_size()[0] - 11))
 except Exception as e:
 	print(f"ERROR DURING TEST: {e}")
+
 
 print("TEST COMPLETE.")

@@ -242,7 +242,9 @@ class Publisher(BaseApp):
         """
         self.name = kwargs.get('applicationName', name) 
         self.icon = self._coerce_to_resource(icon)
-        self.events = coerce_to_events(kwargs.get('notifications', event_defs) if isinstance(kwargs.get('notifications'), list) else event_defs)
+        self.events = coerce_to_events(kwargs.get('notifications', event_defs) if isinstance(kwargs.get('notifications'), list) else event_defs)  # type: ignore
+        self.default_notifications = coerce_to_events(kwargs.get('defaultNotifications', event_defs) if isinstance(kwargs.get('defaultNotifications'), list) else event_defs)  # type: ignore
+        self.events = self.events or self.default_notifications
 
         kwargs.pop('applicationName', None)
         kwargs.pop('notifications', None)
@@ -365,6 +367,18 @@ class Publisher(BaseApp):
         """Return string representation."""
         return f"Publisher(name={self.name!r}, events={len(self.events)})"
 
+    def notify(self, *args, **kwargs):
+        """Deprecated: Use publish() instead."""
+        import warnings
+        warnings.warn(
+            'notify() method is deprecated, use publish() instead',
+            DeprecationWarning,
+            stacklevel=2
+        )
+        self.publish(*args, **kwargs)
+
+class GrowlNotifier(Publisher):
+    pass
 
 class Notifier(Publisher):
     """Deprecated: Use Publisher instead."""

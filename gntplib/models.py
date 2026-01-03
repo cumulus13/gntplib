@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Optional, Callable, Any, Dict
 from .constants import RESOURCE_URL_SCHEME
 from .exceptions import GNTPValidationError
+from .image_validator import ImageDetector
 
 __all__ = [
     'Resource',
@@ -83,7 +84,15 @@ class Resource:
             if not self.data and data and not Path(data).is_file():  # type: ignore
                 # check if data is base64encode
                 import base64
-                self.data = base64.b64decode(data)
+                if self.is_base64(data):
+                    self.data = base64.b64decode(data)
+        except Exception:
+            pass
+
+        try:
+            if not self.data and data and not Path(data).is_file():  # type: ignore
+                if ImageDetector.validate_image(self.data, strict=True):
+                    self.data = data
         except Exception:
             pass
 
@@ -103,6 +112,24 @@ class Resource:
         """
         return self.data  # type: ignore
     
+    def is_base64(self, data, module = None):
+        """
+        One-line solution: Just try to decode it!
+        This is actually the fastest and most robust.
+        """
+        if not module:
+            import base64 as module
+        try:
+            if isinstance(data, bytes):
+                try:
+                    data = data.decode('ascii')
+                except UnicodeDecodeError:
+                    return False
+            module.b64decode(data, validate=True)
+            return True
+        except Exception:
+            return False
+
     @classmethod
     def from_file(cls, filepath: str) -> 'Resource':
         """Create resource from file.
