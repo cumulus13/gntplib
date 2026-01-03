@@ -31,8 +31,24 @@ version = '.'.join(release.split('.')[:2])  # Short X.Y version
 
 # -- General configuration ---------------------------------------------------
 
+def debug_setup(app):
+    def show_handlers(app):
+        import logging
+        logger = logging.getLogger('sphinx')
+        print("\n" + "="*60)
+        print("DEBUG: Sphinx Logger Handlers:")
+        for i, h in enumerate(logger.handlers):
+            print(f"  [{i}] {h.__class__.__name__}")
+            if hasattr(h, 'formatter'):
+                print(f"      Formatter: {h.formatter.__class__.__name__}")
+        print("="*60 + "\n")
+    
+    app.connect('builder-inited', show_handlers, priority=999)
+
 # Add any Sphinx extension module names here
+
 extensions = [
+    'sphinxcolor',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.napoleon',
@@ -44,6 +60,9 @@ extensions = [
     'sphinx_copybutton',
     'myst_parser',
 ]
+
+sphinxcolor_enabled = True
+
 
 # Add any paths that contain templates here
 templates_path = ['_templates']
@@ -179,3 +198,7 @@ myst_enable_extensions = [
 ]
 
 myst_heading_anchors = 3
+
+# Add at end of file
+# def setup(app):
+#     debug_setup(app)

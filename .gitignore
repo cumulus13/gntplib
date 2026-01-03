@@ -26,3 +26,8 @@ __pycache__/
 
 # Added entries (1 items)
 docs.0/
+
+# Added entries (3 items)
+docs/capture_and_analyze.py
+docs/deep_debug.py
+*.log

@@ -21,7 +21,7 @@ if errorlevel 1 (
 twine upload dist\* -r pypihub
 if errorlevel 1 (
     sendgrowl %folder% UploadEvent "Upload Failed" "Failed to upload to the pypi!" -p 2
-    exit /b 1
+    :: exit /b 1
 )
 
 twine upload dist\*

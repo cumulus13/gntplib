@@ -189,6 +189,7 @@ class BaseApp:
             gntp_client_class: Client class (default: GNTPClient)
             **kwargs: Additional client arguments
         """
+        kwargs.pop('hostname', None)
         self.custom_headers = custom_headers or []
         self.app_specific_headers = app_specific_headers or []
         
@@ -211,8 +212,8 @@ class Publisher(BaseApp):
     
     def __init__(
         self,
-        name: str,
-        event_defs: List[Union[str, Tuple[str, bool], Event]],
+        name: Optional[str] = 'gntplib',
+        event_defs: Optional[List[Union[str, Tuple[str, bool], Event]]] = ['gntplib'],
         icon: Optional[Union[str, Resource]] = None,
         custom_headers: Optional[List[Tuple[str, Any]]] = None,
         app_specific_headers: Optional[List[Tuple[str, Any]]] = None,
@@ -239,9 +240,12 @@ class Publisher(BaseApp):
             >>> icon = Resource.from_file('icon.png')
             >>> pub = Publisher('MyApp', events, icon=icon)
         """
-        self.name = name
+        self.name = kwargs.get('applicationName', name) 
         self.icon = self._coerce_to_resource(icon)
-        self.events = coerce_to_events(event_defs)
+        self.events = coerce_to_events(kwargs.get('notifications', event_defs) if isinstance(kwargs.get('notifications'), list) else event_defs)
+
+        kwargs.pop('applicationName', None)
+        kwargs.pop('notifications', None)
         
         if not self.events:
             raise GNTPValidationError(
@@ -278,8 +282,8 @@ class Publisher(BaseApp):
     
     def publish(
         self,
-        name: str,
-        title: str,
+        name: Optional[str] = 'gntplib',
+        title: Optional[str] = 'gntplib',
         text: str = '',
         id_: Optional[str] = None,
         sticky: bool = False,
@@ -314,9 +318,16 @@ class Publisher(BaseApp):
             ...     sticky=True
             ... )
         """
-        notification = Notification(
-            name,
-            title,
+
+        name = socket_callback_options.get('noteType', name)
+        text = socket_callback_options.get('description', text)
+
+        socket_callback_options.pop('noteType', None)  # type: ignore
+        socket_callback_options.pop('description', None)  # type: ignore
+
+        notification = Notification(  # type: ignore
+            name,  # type: ignore
+            title or 'gntplib',
             text,
             id_=id_,
             sticky=sticky,
