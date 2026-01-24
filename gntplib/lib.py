@@ -27,7 +27,8 @@ __all__ = [
     'Subscriber',
     # Deprecated aliases
     'notify',
-    'Notifier'
+    'Notifier',
+    'GrowlNotifier'
 ]
 
 
@@ -57,7 +58,7 @@ def publish(
     publisher.publish(event_name, title, text)
 
 
-def notify(app_name: str, event_name: str, title: str, text: str = '') -> None:
+def notify(app_name: str, event_name: str, title: str = '', text: str = '', **kwargs) -> None:
     """Deprecated: Use publish() instead."""
     import warnings
     warnings.warn(
@@ -65,6 +66,8 @@ def notify(app_name: str, event_name: str, title: str, text: str = '') -> None:
         DeprecationWarning,
         stacklevel=2
     )
+
+    text = kwargs.get('message', title)
     publish(app_name, event_name, title, text)
 
 
@@ -241,13 +244,17 @@ class Publisher(BaseApp):
             >>> pub = Publisher('MyApp', events, icon=icon)
         """
         self.name = kwargs.get('applicationName', name) 
-        self.icon = self._coerce_to_resource(icon)
+        self.icon = self._coerce_to_resource(kwargs.get('applicationIcon', icon))
         self.events = coerce_to_events(kwargs.get('notifications', event_defs) if isinstance(kwargs.get('notifications'), list) else event_defs)  # type: ignore
         self.default_notifications = coerce_to_events(kwargs.get('defaultNotifications', event_defs) if isinstance(kwargs.get('defaultNotifications'), list) else event_defs)  # type: ignore
-        self.events = self.events or self.default_notifications
+        if self.default_notifications:
+            self.events = [x for s in [set()] for x in self.events + self.default_notifications if not (x in s or s.add(x))]
+        # self.events = self.events or self.default_notifications
 
         kwargs.pop('applicationName', None)
         kwargs.pop('notifications', None)
+        kwargs.pop('defaultNotifications', None)
+        kwargs.pop('applicationIcon', None)
         
         if not self.events:
             raise GNTPValidationError(
@@ -321,11 +328,11 @@ class Publisher(BaseApp):
             ... )
         """
 
-        name = socket_callback_options.get('noteType', name)
-        text = socket_callback_options.get('description', text)
+        name = socket_callback_options.pop('noteType', name)
+        text = socket_callback_options.pop('message', socket_callback_options.pop('description', text))
 
-        socket_callback_options.pop('noteType', None)  # type: ignore
-        socket_callback_options.pop('description', None)  # type: ignore
+        # socket_callback_options.pop('noteType', None)  # type: ignore
+        # socket_callback_options.pop('description', None)  # type: ignore
 
         notification = Notification(  # type: ignore
             name,  # type: ignore
@@ -360,8 +367,15 @@ class Publisher(BaseApp):
         if value is None or isinstance(value, Resource):
             return value
         if isinstance(value, str):
-            return Resource(url=value)
-        return value
+            # Check if it's a URL (starts with http:// or https://)
+            if value.startswith(('http://', 'https://')):
+                return Resource(url=value)
+            else:
+                # Treat as file path
+                return Resource(data=value)
+        
+        if isinstance(value, bytes):
+            return Resource(data=value)
     
     def __repr__(self) -> str:
         """Return string representation."""
@@ -375,7 +389,7 @@ class Publisher(BaseApp):
             DeprecationWarning,
             stacklevel=2
         )
-        self.publish(*args, **kwargs)
+        return self.publish(*args, **kwargs)
 
 class GrowlNotifier(Publisher):
     pass

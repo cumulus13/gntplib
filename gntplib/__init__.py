@@ -45,6 +45,7 @@ from .lib import (
     Subscriber,
     Resource,
     SocketCallback,
+    GrowlNotifier
 )
 
 from .async_gntp import (
