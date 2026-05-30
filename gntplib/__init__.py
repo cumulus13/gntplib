@@ -48,6 +48,13 @@ from .lib import (
     GrowlNotifier
 )
 
+from .connections import (
+    GNTPClient,
+    BaseGNTPConnection,
+    GNTPConnection,
+    generate_messages
+)
+
 from .async_gntp import (
     AsyncPublisher,
     AsyncSubscriber,
